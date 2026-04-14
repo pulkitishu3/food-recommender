@@ -9,7 +9,7 @@ import urllib.parse
 from datetime import datetime
 from collections import Counter
 
-app = Flask(__name__, template_folder='templates')
+app = Flask(__name__, template_folder='template')
 app.secret_key = 'food-hub-secret-2026'
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'food_hub.db')
