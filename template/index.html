@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Hub — Smart Personalized Food Recommender</title>
+    <meta name="description"
+        content="Personalized food recommendations based on your mood, weather, dietary preferences, and taste profile. Create your account to track favorites and discover your food personality.">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <!-- ═══ Auth Modal ═══ -->
+    <div id="auth-modal" class="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-brand">🍽️ <span>FoodHub</span></div>
+            <p class="auth-subtitle">Your personalized food companion</p>
+
+            <div class="auth-tabs">
+                <button id="auth-tab-login" class="auth-tab active" onclick="App.switchAuthMode('login')">Log
+                    In</button>
+                <button id="auth-tab-signup" class="auth-tab" onclick="App.switchAuthMode('signup')">Sign Up</button>
+            </div>
+
+            <div id="auth-error" class="auth-error"></div>
+
+            <!-- Login Form -->
+            <form id="login-form" onsubmit="App.handleLogin(event)">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" placeholder="Enter your username" required
+                        autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" placeholder="Enter your password"
+                        required autocomplete="current-password">
+                </div>
+                <button type="submit" class="btn-primary">Log In</button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signup-form" onsubmit="App.handleSignup(event)" style="display:none">
+                <div class="form-group">
+                    <label for="signup-display">Display Name</label>
+                    <input type="text" id="signup-display" name="display_name" placeholder="What should we call you?"
+                        autocomplete="name">
+                </div>
+                <div class="form-group">
+                    <label for="signup-username">Username</label>
+                    <input type="text" id="signup-username" name="username" placeholder="Pick a username (3+ chars)"
+                        required minlength="3" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" name="password"
+                        placeholder="Create a password (4+ chars)" required minlength="4" autocomplete="new-password">
+                </div>
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ═══ App Shell ═══ -->
+    <div id="app-shell">
+        <!-- ─── Navigation ─── -->
+        <nav class="navbar" id="main-nav">
+            <div class="nav-brand">🍽️ <span>FoodHub</span></div>
+            <div class="nav-tabs">
+                <a href="#" class="nav-tab active" data-tab="recommend">🎯 Recommend</a>
+                <a href="#" class="nav-tab" data-tab="explore">🔍 Explore</a>
+                <a href="#" class="nav-tab" data-tab="favorites">❤️ Favorites</a>
+                <a href="#" class="nav-tab" data-tab="history">📜 History</a>
+                <a href="#" class="nav-tab" data-tab="insights">🧠 Insights</a>
+                <a href="#" class="nav-tab" data-tab="profile">👤 Profile</a>
+            </div>
+            <div id="nav-user-area" class="nav-user-area"></div>
+        </nav>
+
+        <main class="main-content">
+            <!-- ─── Tab: Recommend ─── -->
+            <section id="tab-recommend" class="tab-content active" style="display:block;">
+                <div class="section-header">
+                    <h1>What should you eat?</h1>
+                    <p class="section-desc">Tell us how you're feeling and we'll find the perfect meal — personalized to
+                        your taste.</p>
+                </div>
+
+                <div class="form-container glass-card">
+                    <form id="recommend-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="mood-select">
+                                    <span class="label-icon">😊</span> How are you feeling?
+                                </label>
+                                <select name="mood" id="mood-select">
+                                    <option value="happy">Happy & Energetic</option>
+                                    <option value="sad">A bit down / Sad</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="weather-select">
+                                    <span class="label-icon">🌤️</span> What's the weather like?
+                                </label>
+                                <select name="weather" id="weather-select">
+                                    <option value="sunny">Sunny / Warm</option>
+                                    <option value="rainy">Rainy / Gloomy</option>
+                                    <option value="cold">Cold / Freezing</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="time-select">
+                                    <span class="label-icon">🕐</span> What time is it?
+                                </label>
+                                <select name="time" id="time-select">
+                                    <option value="morning">Morning / Daytime</option>
+                                    <option value="night">Evening / Night</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="diet-select">
+                                    <span class="label-icon">🥗</span> Dietary preference?
+                                </label>
+                                <select name="diet" id="diet-select">
+                                    <option value="any">None / Surprise me!</option>
+                                    <option value="vegetarian">Vegetarian</option>
+                                    <option value="vegan">Vegan</option>
+                                    <option value="gluten-free">Gluten-Free</option>
+                                    <option value="pescatarian">Pescatarian</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-primary" id="recommend-btn">Get Recommendations 🚀</button>
+                    </form>
+                </div>
+
+                <div id="results-area"></div>
+            </section>
+
+            <!-- ─── Tab: Explore (Recipe Search) ─── -->
+            <section id="tab-explore" class="tab-content">
+                <div class="section-header">
+                    <h1>Explore Recipes</h1>
+                    <p class="section-desc">Search thousands of real recipes from around the world.</p>
+                </div>
+
+                <div class="search-container glass-card">
+                    <form id="search-form" class="search-form">
+                        <input type="text" name="query"
+                            placeholder="Search for a recipe... (e.g., pasta, curry, pancake)" autocomplete="off"
+                            required>
+                        <button type="submit" class="btn-primary">🔍 Search</button>
+                    </form>
+                </div>
+
+                <div id="search-results"></div>
+            </section>
+
+            <!-- ─── Tab: Favorites ─── -->
+            <section id="tab-favorites" class="tab-content">
+                <div class="section-header">
+                    <h1>Your Favorites</h1>
+                    <p class="section-desc">Foods you've loved. These boost your personalized recommendations!</p>
+                </div>
+                <div id="favorites-content"></div>
+            </section>
+
+            <!-- ─── Tab: History ─── -->
+            <section id="tab-history" class="tab-content">
+                <div class="section-header">
+                    <h1>Recommendation History</h1>
+                    <p class="section-desc">Every recommendation we've made, tracked over time.</p>
+                </div>
+                <div id="history-content"></div>
+            </section>
+
+            <!-- ─── Tab: Insights ─── -->
+            <section id="tab-insights" class="tab-content">
+                <div class="section-header">
+                    <h1>Your Food Personality</h1>
+                    <p class="section-desc">Discover patterns in your eating preferences.</p>
+                </div>
+                <div id="insights-content"></div>
+            </section>
+
+            <!-- ─── Tab: Profile ─── -->
+            <section id="tab-profile" class="tab-content">
+                <div class="section-header">
+                    <h1>Your Profile</h1>
+                    <p class="section-desc">Manage your account and food preferences for better recommendations.</p>
+                </div>
+                <div id="profile-content"></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ─── Recipe Modal ─── -->
+    <div id="recipe-modal" class="modal-overlay" onclick="if(event.target===this)App.closeModal()">
+        <div class="modal-body" id="recipe-modal-content"></div>
+    </div>
+
+    <!-- ─── Toast Notifications ─── -->
+    <div id="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+
+</html>

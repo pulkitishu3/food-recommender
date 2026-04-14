@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Recommendations!</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</head>
+
+<body>
+    <h1>✨ Here's what you should eat!</h1>
+
+    <div class="results-container">
+        {% if foods %}
+        <div class="cards-grid">
+            {% for food in foods %}
+            <div class="food-card">
+                <div class="food-emoji">{{ food.emoji }}</div>
+                <div class="food-name">{{ food.name }}</div>
+                <div class="food-desc">{{ food.desc }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-results">
+            <div class="food-emoji">😢</div>
+            <p>Sorry, we couldn't find anything matching those exactly.<br>Try changing your dietary preferences!</p>
+        </div>
+        {% endif %}
+
+        <div style="text-align: center;">
+            <a href="/" class="action-btn" style="max-width: 300px;">Try Again 🔄</a>
+        </div>
+    </div>
+</body>
+
+</html>
